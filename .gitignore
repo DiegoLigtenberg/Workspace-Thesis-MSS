@@ -118,6 +118,9 @@ dmypy.json
 database/
 database_chunk/
 database_wav/
+train/
+valid/
+test/
 
 # music files
 *.mp3

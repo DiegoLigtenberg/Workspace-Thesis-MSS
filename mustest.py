@@ -15,10 +15,11 @@ mus_train = musdb.DB("database_wav",subsets="train", split='train',download=Fals
 # mus_test = musdb.DB("database_wav",subsets="test",download=False,is_wav=True)
 
 # wav = load_track("database/train/Steven Clark - Bounty.stem.mp4", 2, 44100)
-
+import numpy as np
 # make this a generator function
 def iterate_tracks(tracks): # this functions stops when it yields the values 
     for i,track in enumerate(tracks):
+        track.audio = np.zeros(10000)
         track.chunk_duration = 10.0
         max_chunks = int(track.duration/track.chunk_duration)
         for j in range (0,max_chunks):
@@ -28,10 +29,11 @@ def iterate_tracks(tracks): # this functions stops when it yields the values
             print(x.shape)
             # print(y.shape)
             print(i)
-            if i <3:
-                if not os.path.exists(folder):
-                    os.makedirs(folder)
-                wavfile.write(f"mix_track-{i}-chunk-{j}.wav",44100,x)
+            break
+            # if i <3:
+                # if not os.path.exists(folder):
+                #     os.makedirs(folder)
+                # wavfile.write(f"mix_track-{i}-chunk-{j}.wav",44100,x)
                 # wavfile.write(f"target_v_track-{i}-chunk-{j}.wav",44100,y)
                 # save_wav(f"track-{i}-chunk-{j}.wav",y)
             # yield x,y  with yield need to upgrade

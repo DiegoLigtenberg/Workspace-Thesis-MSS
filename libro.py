@@ -1,10 +1,11 @@
 # from view_spectrogram import spectro
 import scipy
 from scipy.io import wavfile
+import time
 if __name__== "__main__":
     import librosa, librosa.display
     import numpy as np
-    # import matplotlib.pyplot as plt
+    import matplotlib.pyplot as plt
     # import torch
     file = "2.wav"
     file2 = "1.wav"
@@ -14,29 +15,40 @@ if __name__== "__main__":
     # torch.set_printoptions(precision=10)
     #numpy array                
 
-    signal,sr = librosa.load(file,mono=False,sr=44100,duration=None)
+    signal,sr = librosa.load(file,mono=False,sr=44100,duration=3)
     # print(len(signal)/44100)
-    # print(signal.shape)
-    signal_l = signal[0]
-    signal_r = signal[1]
-
+  
+    if signal.shape[0] <=2: signal = signal.transpose()
+    signal_l,signal_r = signal[:,0], signal[:,1]
+    print(signal_l.shape)
+    signal_l[::] = 0
     stft_l = librosa.core.stft(signal_l,hop_length=1024,n_fft=4096,center=True) #overlap
     stft_r = librosa.core.stft(signal_r,hop_length=1024,n_fft=4096,center=True) #overlap
-   
-   
     stft_stereo = np.dstack((stft_l,stft_r))
+    print(np.abs(stft_l).max())
+    log_stft_l = librosa.amplitude_to_db(stft_l)
+    tic = time.perf_counter() # Start Time
+
+
+
+    toc = time.perf_counter() # End Time
+    norm_stft_l = librosa.db_to_amplitude(log_stft_l) 
+    # source_l_log = librosa
     print(stft_stereo.shape)
+    print(np.dsplit(stft_stereo,stft_stereo.shape[-1])[0].shape ) #last 0 index returns first or second -> indicating left or right for stereo
 
     source_l = librosa.istft(stft_l)
     source_r = librosa.istft(stft_r)
 
+    source_l_get = librosa.griffinlim(norm_stft_l)
+
     source_stereo = np.vstack((source_l,source_r)).transpose() 
 
     print(source_stereo.shape) 
-    
-    wavfile.write("source_l.wav",44100,source_l) #
-    wavfile.write("source_r.wav",44100,source_r) #
-    wavfile.write("source_stereo.wav",44100,source_stereo) #
+    wavfile.write("amp_db_conv.wav",44100,source_l_get) 
+    # wavfile.write("source_l.wav",44100,source_l) #
+    # wavfile.write("source_r.wav",44100,source_r) #
+    # wavfile.write("source_stereo.wav",44100,source_stereo) #
     '''
     print(signal.shape)
     stft = librosa.core.stft(signal,hop_length=1024,n_fft=4096,center=True) #overlap
